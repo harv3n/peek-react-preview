@@ -28,6 +28,10 @@ export interface PreviewBuildFailure {
 
 export type PreviewBuildResult = PreviewBuildSuccess | PreviewBuildFailure;
 
+export interface PreviewBuildSession extends vscode.Disposable {
+  rebuild(): Promise<PreviewBuildResult>;
+}
+
 export interface PreviewCompiler extends vscode.Disposable {
-  build(request: PreviewBuildRequest): Promise<PreviewBuildResult>;
+  createSession(request: PreviewBuildRequest): Promise<PreviewBuildSession>;
 }
