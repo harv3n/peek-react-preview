@@ -109,12 +109,12 @@ Componentes fortemente dependentes do runtime completo da aplicação, como pág
 
 ## Roadmap
 
-[ ] manter um `esbuild.Context` por pré-visualização aberta
-[ ] invalidação com reconhecimento de dependências
-[ ] detecção automática da raiz do projeto para monorepos
-[ ] adaptador Tailwind v3/v4
-[ ] enriquecimento do seletor de preview (`PreviewDefault`, `PreviewDisabled`, ...)
-[ ] tamanho de viewport configurável
-[ ] diagnósticos de build clicáveis ​​que abrem a linha de código-fonte
-[ ] React Fast Refresh
-[ ] adaptador de compatibilidade com o Vite para projetos que dependem genuinamente de transformações do Vite.
+- [ ] manter um `esbuild.Context` por pré-visualização aberta
+- [ ] invalidação com reconhecimento de dependências
+- [ ] detecção automática da raiz do projeto para monorepos
+- [ ] adaptador Tailwind v3/v4
+- [ ] enriquecimento do seletor de preview (`PreviewDefault`, `PreviewDisabled`, ...)
+- [ ] tamanho de viewport configurável
+- [ ] diagnósticos de build clicáveis ​​que abrem a linha de código-fonte
+- [ ] React Fast Refresh
+- [ ] adaptador de compatibilidade com o Vite para projetos que dependem genuinamente de transformações do Vite.
