@@ -1,0 +1,100 @@
+{
+  "name": "peek-react-preview",
+  "displayName": "Peek: React Preview",
+  "description": "Preview React components directly inside VS Code.",
+  "version": "0.1.0",
+  "publisher": "harv3n",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.134.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "react",
+    "tsx",
+    "jsx",
+    "preview",
+    "components"
+  ],
+  "icon": "images/icon.png",
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onLanguage:typescriptreact",
+    "onLanguage:javascriptreact"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "peek.open",
+        "title": "Peek: Open Preview",
+        "icon": "$(open-preview)"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "peek.open",
+          "group": "navigation@10",
+          "when": "editorLangId == typescriptreact || editorLangId == javascriptreact"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Peek",
+      "properties": {
+        "peek.previewExport": {
+          "type": "string",
+          "default": "Preview",
+          "description": "Named export used as the component preview entry. Falls back to the module default export when missing."
+        },
+        "peek.autoRefresh": {
+          "type": "boolean",
+          "default": true,
+          "description": "Rebuild the preview when an open source document changes."
+        },
+        "peek.debounceMs": {
+          "type": "number",
+          "default": 150,
+          "minimum": 25,
+          "maximum": 2000,
+          "description": "Delay before rebuilding after an editor change."
+        },
+        "peek.globalStyles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [],
+          "description": "Optional project-relative global styles to inject into every preview. This is an escape hatch, not required for imported component styles."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
+    "compile": "tsc -p .",
+    "check": "tsc -p . --noEmit",
+    "watch": "tsc -p . -w",
+    "package:vsix": "npm run compile && vsce package"
+  },
+  "dependencies": {
+    "esbuild": "^0.28.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/vscode": "^1.134.0",
+    "@vscode/vsce": "^3.9.2",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "typescript": "^7.0.2"
+  },
+  "allowScripts": {
+    "@vscode/vsce-sign@2.1.0": true,
+    "esbuild@0.28.2": true,
+    "keytar@7.9.0": true
+  }
+}

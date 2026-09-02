@@ -1,0 +1,11 @@
+.card {
+  max-width: 320px;
+  padding: 18px;
+  border: 1px solid #8885;
+  border-radius: 14px;
+}
+
+.title {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
