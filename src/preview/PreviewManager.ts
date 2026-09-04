@@ -1,7 +1,10 @@
 import { createHash } from "node:crypto";
 import * as path from "node:path";
 import * as vscode from "vscode";
-import { PreviewCompiler } from "../compiler/PreviewCompiler";
+import {
+  PreviewBuildSession,
+  PreviewCompiler,
+} from "../compiler/PreviewCompiler";
 import { Debouncer } from "../utils/debounce";
 import { PreviewPanel } from "./PreviewPanel";
 
@@ -10,6 +13,7 @@ const SUPPORTED_EXTENSIONS = new Set([".tsx", ".jsx"]);
 
 interface OpenPreview {
   panel: PreviewPanel;
+  buildSession: PreviewBuildSession;
   debouncer: Debouncer;
   building: boolean;
   rebuildRequested: boolean;
@@ -45,7 +49,7 @@ export class PreviewManager implements vscode.Disposable {
     const editor = vscode.window.activeTextEditor;
     if (!editor) {
       void vscode.window.showInformationMessage(
-        "Open a .tsx or .jsx component first.",
+        "Abra um arquivo .tsx ou .jsx primeiro.",
       );
       return;
     }
@@ -58,7 +62,7 @@ export class PreviewManager implements vscode.Disposable {
         !SUPPORTED_EXTENSIONS.has(extension))
     ) {
       void vscode.window.showWarningMessage(
-        "React Primitive Preview currently supports .tsx and .jsx files.",
+        "Peek atualmente suporta apenas arquivos .tsx e .jsx.",
       );
       return;
     }
@@ -77,9 +81,18 @@ export class PreviewManager implements vscode.Disposable {
       createHash("sha1").update(key).digest("hex").slice(0, 16),
     );
 
+    const config = this.configuration();
+    const buildSession = await this.compiler.createSession({
+      sourceUri: document.uri,
+      outputDirectory,
+      previewExport: config.get<string>("previewExport", "Preview"),
+      globalStyles: config.get<string[]>("globalStyles", []),
+    });
+
     const panel = PreviewPanel.create(document.uri, outputDirectory);
     const preview: OpenPreview = {
       panel,
+      buildSession,
       debouncer: new Debouncer(),
       building: false,
       rebuildRequested: false,
@@ -88,6 +101,7 @@ export class PreviewManager implements vscode.Disposable {
     this.previews.set(key, preview);
     panel.onDidDispose(() => {
       preview.debouncer.dispose();
+      preview.buildSession.dispose();
       this.previews.delete(key);
     });
 
@@ -104,23 +118,7 @@ export class PreviewManager implements vscode.Disposable {
     preview.building = true;
 
     try {
-      const config = this.configuration();
-      const outputDirectory = vscode.Uri.joinPath(
-        this.extensionContext.globalStorageUri,
-        "previews",
-        createHash("sha1")
-          .update(preview.panel.sourceUri.toString())
-          .digest("hex")
-          .slice(0, 16),
-      );
-
-      const result = await this.compiler.build({
-        sourceUri: preview.panel.sourceUri,
-        outputDirectory,
-        previewExport: config.get<string>("previewExport", "Preview"),
-        globalStyles: config.get<string[]>("globalStyles", []),
-      });
-
+      const result = await preview.buildSession.rebuild();
       await preview.panel.render(result);
     } finally {
       preview.building = false;
@@ -132,12 +130,13 @@ export class PreviewManager implements vscode.Disposable {
   }
 
   private configuration(): vscode.WorkspaceConfiguration {
-    return vscode.workspace.getConfiguration("reactPrimitivePreview");
+    return vscode.workspace.getConfiguration("peek");
   }
 
   dispose(): void {
     for (const preview of this.previews.values()) {
       preview.debouncer.dispose();
+      preview.buildSession.dispose();
       preview.panel.dispose();
     }
     this.previews.clear();
