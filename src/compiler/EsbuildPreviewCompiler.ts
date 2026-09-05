@@ -1,7 +1,7 @@
 import * as path from "node:path";
 import * as esbuild from "esbuild";
 import * as vscode from "vscode";
-import { DocumentOverlay } from "./DocumentOverlay";
+import { DocumentOverlay } from "../vscode/DocumentOverlay";
 import {
   PreviewAsset,
   PreviewBuildRequest,

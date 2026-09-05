@@ -6,7 +6,7 @@ import {
   PreviewCompiler,
 } from "../compiler/PreviewCompiler";
 import { Debouncer } from "../utils/debounce";
-import { PreviewPanel } from "./PreviewPanel";
+import { PreviewPanel } from "../vscode/PreviewPanel";
 
 const SUPPORTED_LANGUAGE_IDS = new Set(["typescriptreact", "javascriptreact"]);
 const SUPPORTED_EXTENSIONS = new Set([".tsx", ".jsx"]);

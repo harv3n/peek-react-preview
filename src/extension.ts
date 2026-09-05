@@ -1,8 +1,8 @@
 import * as vscode from "vscode";
-import { DocumentOverlay } from "./compiler/DocumentOverlay";
+import { DocumentOverlay } from "./vscode/DocumentOverlay";
 import { EsbuildPreviewCompiler } from "./compiler/EsbuildPreviewCompiler";
-import { PreviewManager } from "./preview/PreviewManager";
-import { PreviewCodeLensProvider } from "./codelens/PreviewCodeLensProvider";
+import { PreviewManager } from "./application/PreviewManager";
+import { PreviewCodeLensProvider } from "./vscode/PreviewCodeLensProvider";
 
 export function activate(context: vscode.ExtensionContext): void {
   const overlay = new DocumentOverlay();
