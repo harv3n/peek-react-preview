@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.0
+
+- Add ESBuild sessions
+- Add support to Tailwind v2
+- Removed example files
+
 ## 0.1.0
 
 - Initial Peek MVP.
