@@ -2,7 +2,7 @@
   "name": "peek-react-preview",
   "displayName": "Peek: React Preview",
   "description": "Preview React components directly inside VS Code.",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "publisher": "harv3n",
   "license": "MIT",
   "repository": {

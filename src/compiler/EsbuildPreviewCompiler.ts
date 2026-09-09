@@ -1,4 +1,6 @@
+import { createRequire } from "node:module";
 import * as path from "node:path";
+import * as fs from "node:fs";
 import * as esbuild from "esbuild";
 import * as vscode from "vscode";
 import { DocumentOverlay } from "../vscode/DocumentOverlay";
@@ -16,6 +18,47 @@ const CSS_FILTER = /\.css$/i;
 const CSS_MODULE_FILTER = /\.module\.css$/i;
 const VIRTUAL_ENTRY = "peek:entry";
 const VIRTUAL_NAMESPACE = "peek";
+
+function getTailwindMajorVersion(root: string): number | undefined {
+  let tailwindMajorVersion = -1;
+  try {
+    const packageJson: {
+      devDependencies: Record<string, string>;
+      dependencies: Record<string, string>;
+    } = JSON.parse(
+      fs.readFileSync(path.resolve(root, "./package.json"), "utf-8"),
+    );
+
+    let tailwindVersion: string | undefined = {
+      ...packageJson.dependencies,
+      ...packageJson.devDependencies,
+    }["tailwindcss"];
+
+    tailwindVersion = /(?<=^\^)\d/.exec(tailwindVersion)?.[0];
+
+    if (tailwindVersion) {
+      tailwindMajorVersion = Number(tailwindVersion);
+    }
+  } catch {
+  } finally {
+    return tailwindMajorVersion;
+  }
+}
+
+function getTailwindPostcssRequirements(
+  require: NodeJS.Require,
+  major: number,
+): NodeJS.Require[] {
+  if (major === 4) {
+    return [];
+  }
+
+  if (major === 2) {
+    return [require("tailwindcss"), require("autoprefixer")];
+  }
+
+  return [];
+}
 
 function loaderForSource(filePath: string): esbuild.Loader {
   const lower = filePath.toLowerCase();
@@ -203,8 +246,28 @@ export class EsbuildPreviewCompiler implements PreviewCompiler {
         build.onLoad(
           { filter: CSS_FILTER, namespace: "file" },
           async (args) => {
-            const contents = overlay.get(args.path);
+            let contents = await overlay.captureAndGet(args.path);
             if (contents === undefined) return undefined;
+
+            const tailwindMajorVersion = getTailwindMajorVersion(projectRoot);
+            if (tailwindMajorVersion && tailwindMajorVersion !== -1) {
+              const projectRequire = createRequire(
+                path.join(projectRoot, "package.json"),
+              );
+
+              const postcss = projectRequire("postcss");
+
+              const result = await postcss(
+                getTailwindPostcssRequirements(
+                  projectRequire,
+                  tailwindMajorVersion,
+                ),
+              ).process(contents, {
+                from: args.path,
+                to: args.path,
+              });
+              contents = result.css;
+            }
 
             return {
               contents,

@@ -38,6 +38,20 @@ export class DocumentOverlay implements vscode.Disposable {
     return this.documents.has(normalize(filePath));
   }
 
+  async captureAndGet(filePath: string): Promise<string | undefined> {
+    if (this.has(filePath)) {
+      return this.get(filePath);
+    }
+
+    const document = await vscode.workspace.openTextDocument(filePath);
+    if (!document) {
+      return undefined;
+    }
+
+    this.capture(document);
+    return document.getText();
+  }
+
   private capture(document: vscode.TextDocument): void {
     if (document.uri.scheme !== "file") {
       return;
