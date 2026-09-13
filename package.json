@@ -2,7 +2,7 @@
   "name": "peek-react-preview",
   "displayName": "Peek: React Preview",
   "description": "Preview React components directly inside VS Code.",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "publisher": "harv3n",
   "license": "MIT",
   "repository": {
@@ -84,7 +84,8 @@
     "package:vsix": "npm run compile && vsce package"
   },
   "dependencies": {
-    "esbuild": "^0.28.2"
+    "esbuild": "^0.28.2",
+    "postcss-load-config": "^6.0.1"
   },
   "devDependencies": {
     "@types/node": "^22.15.0",
