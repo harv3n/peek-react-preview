@@ -219,7 +219,10 @@ function unwrapDefault<T>(module: unknown): T {
   return module as T;
 }
 
-function tryResolve(projectRequire: NodeRequire, packageName: string): boolean {
+function tryResolve(
+  projectRequire: NodeJS.Require,
+  packageName: string,
+): boolean {
   try {
     projectRequire.resolve(packageName);
     return true;
