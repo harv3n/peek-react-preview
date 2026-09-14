@@ -423,7 +423,9 @@ export class EsbuildPreviewCompiler implements PreviewCompiler {
     const virtualEntry = createVirtualEntry({
       componentPath,
       previewExport: request.previewExport,
-      globalStyles: [...resolvedGlobalStyles, ...discoveredStyles],
+      globalStyles: [
+        ...new Set([...resolvedGlobalStyles, ...discoveredStyles]),
+      ],
     });
 
     const overlay = this.overlay;
