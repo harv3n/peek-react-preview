@@ -1,5 +1,6 @@
 import { createRequire } from "node:module";
 import * as fs from "node:fs";
+import * as fg from "fast-glob";
 import * as path from "node:path";
 
 import * as esbuild from "esbuild";
@@ -177,21 +178,23 @@ function isProjectSource(filePath: string, projectRoot: string): boolean {
   return !segments.includes("node_modules");
 }
 
-function findFilesByRegex(dir: string, regex: RegExp, fileList: string[] = []) {
-  const files = fs.readdirSync(dir);
+function findFilesByRegex(dir: string, regexPattern: RegExp) {
+  return fg.sync(regexPattern.source, {
+    cwd: dir,
+    absolute: true,
+    ignore: ["**/node_modules/**"],
+  });
+}
 
-  for (const file of files) {
-    const fullPath = path.join(dir, file);
-    const stat = fs.statSync(fullPath);
+async function readMatchedFile(pattern: string): Promise<string | undefined> {
+  const files = await fg.async(pattern, { ignore: ["**/node_modules/**"] });
 
-    if (stat.isDirectory()) {
-      findFilesByRegex(fullPath, regex, fileList);
-    } else if (regex.test(file)) {
-      fileList.push(fullPath);
-    }
+  if (files.length === 0) {
+    return undefined;
   }
 
-  return fileList;
+  const content = await fs.promises.readFile(files[0], "utf-8");
+  return content;
 }
 
 function findTailwindConfig(projectRoot: string): string | undefined {
@@ -501,10 +504,9 @@ export class EsbuildPreviewCompiler implements PreviewCompiler {
 
             if (contents === undefined) {
               try {
-                contents = await fs.promises.readFile(args.path, "utf-8");
-              } catch {
-                return undefined;
-              }
+                contents = await readMatchedFile(args.path);
+              } catch {}
+              if (contents === undefined) return undefined;
             }
 
             if (styleProcessor && isProjectSource(args.path, projectRoot)) {
